@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 def g(x, u):
-    return k * x * (m - x) - x - u * x
+    return k * x * (m - x) - u * x
 
 def lambda_function(lambda_, x):
     u = (p_1 * x - lambda_ * x - c) * ((2 * p_2 * x ** 2) ** (-1))
@@ -102,22 +102,9 @@ x_uncontrol = runge_kutta_forward(g, u, x_0, h, n_max)
 
 [x, lambda_, u] = forward_backward_sweep(g, lambda_function, u, x_0, lambda_final, h, n_max)
 
-plt.plot(t, x, '-', ms=3, lw=1, alpha=0.7, mfc='blue', label = 'Controlled solution')
-#plt.plot(t, x_uncontrol, '--', ms=3, lw=1, alpha=0.7, mfc='red', label = 'Uncontrolled solution')
+plt.plot(t, u, '-', ms=3, lw=1, alpha=0.7, mfc='blue', label = 'Optimal Control')
 plt.xlabel('Time')
-plt.ylabel('Fish population')
-#plt.subplot(3, 1, 1)
-#plt.plot(t, x)
-#plt.ylabel('State')
-
-#plt.subplot(3, 1, 2)
-#plt.plot(t, lambda_)
-#plt.ylabel('Adjoint')
-
-#plt.subplot(3, 1, 3)
-#plt.plot(t, u)
-#plt.ylabel('Control')
-#plt.xlabel('Time')
+plt.ylabel('Harvesting proportion')
 
 plt.legend(loc=0)
 plt.show()
