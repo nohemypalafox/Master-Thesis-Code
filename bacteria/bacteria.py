@@ -7,10 +7,9 @@ import numpy as np
 def g(x, u):
     return r * x + a * u * x - b * (u ** 2) * np.exp(-x)
 
-def lambda_function(lambda_, x):
-    u = (lambda_ * a * x) / (2 * (lambda_ * b * np.exp(-x) + 1))
+def lambda_function(lambda_, x, u):
     l = - lambda_ * (r + (a  + b * u * np.exp(-x)) * u)
-    return  l
+    return l
 
 def runge_kutta_forward(g, u, x_0, h, n_max):
     sol = np.zeros(n_max)
@@ -32,7 +31,7 @@ def runge_kutta_forward(g, u, x_0, h, n_max):
     return sol
 
 
-def runge_kutta_backward(lambda_function, x, lambda_final, h, n_max):
+def runge_kutta_backward(lambda_function, x, u, lambda_final, h, n_max):
     sol = np.zeros(n_max)
     sol[-1] = lambda_final
 
@@ -41,11 +40,14 @@ def runge_kutta_backward(lambda_function, x, lambda_final, h, n_max):
         x_j = x[j]
         x_jm1 = x[j - 1]
         x_mj = 0.5 * (x_j + x_jm1)
+        u_j = u[j]
+        u_jm1 = u[j - 1]
+        u_mj = 0.5 * (u_j + u_jm1)
 
-        k_1 = lambda_function(lambda_j, x_j)
-        k_2 = lambda_function(lambda_j - 0.5 * h * k_1, x_mj)
-        k_3 = lambda_function(lambda_j - 0.5 * h * k_2, x_mj)
-        k_4 = lambda_function(lambda_j - h * k_3, x_jm1)
+        k_1 = lambda_function(lambda_j, x_j, u_j)
+        k_2 = lambda_function(lambda_j - 0.5 * h * k_1, x_mj, u_mj)
+        k_3 = lambda_function(lambda_j - 0.5 * h * k_2, x_mj, u_mj)
+        k_4 = lambda_function(lambda_j - h * k_3, x_jm1, u_jm1)
 
         sol[j - 1] = lambda_j - (h / 6.0) * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
 
@@ -63,7 +65,7 @@ def forward_backward_sweep(g, lambda_function, u, x_0, lambda_final, h, n_max):
         x_old = x
         x = runge_kutta_forward(g, u, x_0, h, n_max)
         lambda_old = lambda_
-        lambda_ = runge_kutta_backward(lambda_function, x, lambda_final, h, n_max)
+        lambda_ = runge_kutta_backward(lambda_function, x, u, lambda_final, h, n_max)
 
         u_1 = (lambda_ * a * x) / (2 * (lambda_ * b * np.exp(-x) + 1))
         u = 0.5 * (u_1 + u_old)
